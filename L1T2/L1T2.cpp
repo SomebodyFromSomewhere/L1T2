@@ -12,6 +12,7 @@ const int lowwerBorder = 1;
 
 int N;
 int M;
+int stepCunter = 0;
 
 void read(std::string fileName, std::vector<std::vector<int>>& array) {
 	std::ifstream file;
@@ -28,12 +29,13 @@ void read(std::string fileName, std::vector<std::vector<int>>& array) {
 		err.addCriticalError("CANNOT READ FILE: OUT OF RANGE[1:300]", "READ");
 	}
 	//READ MAP
+	array.resize(N);
 	for (int i = 0; i < N; i++)
 	{
 		for (int j = 0; j < N; j++)
 		{
 			if (file.eof()) {
-				err.addCriticalError("CANNOT READ FILE: EOF", "READ");
+				err.addCriticalError("CANNOT READ FILE: UNEXPECTED EOF", "READ");
 			}
 
 			char temp;
@@ -53,6 +55,10 @@ void read(std::string fileName, std::vector<std::vector<int>>& array) {
 	{
 		for (int j = 0; j < M; j++)
 		{
+			if (array[i][j] != 0)
+			{
+				err.addCriticalError("CANNOT SET RAFT!", "READ");
+			}
 			array[i][j] = 2;
 		}
 	}
@@ -61,8 +67,17 @@ void read(std::string fileName, std::vector<std::vector<int>>& array) {
 
 int main()
 {
+	clock_t start = clock();
+
+
 	std::vector<std::vector<int>> map;
     read("INPUT.txt", map);
+	print2dArrayVec(map);
+
+
+
+
+	calculateTime(start);
 
     return 0;
 }
