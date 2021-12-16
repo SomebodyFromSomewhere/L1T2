@@ -3,12 +3,12 @@
 #include <fstream>
 #include <vector>
 #include <Windows.h>
-#include <assert.h>
+#include <assert.h> // USED ONLY IN POP_FRONT FUNCTION
 #include <map>
 #include <set>
 
-#include "utils/Error.h"
-#include "utils/utils.h"
+#include "utils/Error.h" // FOR THROW AND TRACE ERRORS
+#include "utils/utils.h" // SOME USEFUL FUNCTIONS
 
 /*
 EXAMPLES FOR INPUT
@@ -38,7 +38,7 @@ EXAMPLES FOR INPUT
 */
 
 
-Error err;
+Error err; // INITIALIZE ERROR LIB
 
 struct Pos
 {
@@ -46,7 +46,7 @@ struct Pos
 	int y;
 };
 
-struct Me 
+struct Me //TODO: RENAME
 {
 	int x;
 	int y;
@@ -62,7 +62,8 @@ enum Directions
 	D - DOWN
 	L - LEFT
 
-	UL - UP LEFT AND E.T.C
+	UL - UP LEFT 
+	DR - DOWN RIGHT AND E.T.C
 
 	*/
 
@@ -75,7 +76,8 @@ enum Directions
 	LD,
 	LU
 }; 
-static const Directions All[] = { UL,
+static const Directions All[] = {  // USED FOR ITERATE ENUM
+	UL,
 	UR,
 	RU,
 	RD,
@@ -94,7 +96,7 @@ std::map<std::vector<int>, Directions> origins;
 std::vector<Me> queue;
 bool res = false;
 
-int N;
+int N = 0;
 const int lowwerBorder = 2;
 const int upperBorder = 300;
 
@@ -123,6 +125,7 @@ void read(std::string fileName)
 	{
 		err.addCriticalError("CANNOT READ FILE: OUT OF RANGE[2:300]", "READ");
 	}
+
 	//READ MAP
 	map.resize(N + 2);
 	mapOfSteps.resize(N + 2);
@@ -134,6 +137,7 @@ void read(std::string fileName)
 			mapOfSteps[i].push_back(0);
 		}
 	}
+
 	for (int i = 1; i < N + 1; i++)
 	{
 		for (int j = 1; j < N + 1; j++)
@@ -180,7 +184,7 @@ void read(std::string fileName)
 
 void addToQueue(int& u, int& v, int& mark) 
 {
-	if (endPos.x == u && endPos.y == v)
+	if (endPos.x == u && endPos.y == v) // IF REACHED END RETURN
 	{
 		res = true;
 		mapOfSteps[v][u] = mark;
@@ -207,6 +211,7 @@ void printAll(int delay = 0, bool clear = false) {
 	}
 }
 
+//OVERLOAD FOR HIGHLIGHTING CURREN POSITION
 void printAll(int posX, int posY, int delay = 0, bool clear = false) 
 {
 	printConditions();
@@ -216,7 +221,7 @@ void printAll(int posX, int posY, int delay = 0, bool clear = false)
 	Sleep(delay);
 	if (clear)
 	{
-		system("CLS");
+		system("CLS"); // CLEARS CONSOLE
 	}
 }
 
@@ -265,49 +270,47 @@ void move(Directions dir,int posX, int posY, int mark)
 		break;
 	}
 
-	Pos temp = { posX + dx, posY + dy };
+	Pos temp = { posX + dx, posY + dy }; // POSIITION AFTER MOVE
 
-	if ((temp.x > 0) && (temp.y > 0) && (temp.x < (N + 2)) && (temp.y < (N + 2)) && (map[temp.y][temp.x] == 0) && (mapOfSteps[temp.y][temp.x] == 0))
+	if ((temp.x > 0) && (temp.y > 0) && (temp.x < (N + 2)) && (temp.y < (N + 2)) && 
+		(map[temp.y][temp.x] == 0) && (mapOfSteps[temp.y][temp.x] == 0)) //CHECK IF OUT OF BORDERS OR ON CUTTED CELL OR ALREADY VISITED
 	{
 		mapOfSteps[temp.y][temp.x] = mark;
 		addToQueue(temp.x, temp.y, mark);
 		std::vector<int> vec = { temp.x, temp.y };
 		origins.insert(std::make_pair(vec, dir));
-		std::cout << "Moved from: " << posX << ":" << posY << " to " << temp.x << ":" << temp.y << std::endl;
 		//printAll(temp.x, temp.y, 0, true); //UNCOMMENT FOR DEBUG
 	}
 }
 
 int main()
 {
-	clock_t start = clock();
+	clock_t start = clock(); // FOR MEASURING TIME
 
     read("INPUT.txt");
 	
 	//printAll(startPos.x, startPos.y, 0, true); //UNCOMMENT FOR DEBUG
 
 	int mark = 1;
-	addToQueue(startPos.x, startPos.y, mark);
-	mapOfSteps[startPos.y][startPos.x] = 1;
+	addToQueue(startPos.x, startPos.y, mark); // ADDING START TO QUEUE
+	mapOfSteps[startPos.y][startPos.x] = 1; // MARKING START VISITED
 	while (!queue.empty())
 	{
 		Me obj = queue.front();
 		pop_front(queue);
 		
-		for (int i = 0; i < Directions::LU; i++)
+		for (int i = 0; i < Directions::LU; i++) // LU LAST IN ENUM AND HAVE ITERATOR = 7
 		{
-			move(All[i], obj.x, obj.y, obj.mark);
+			move(All[i], obj.x, obj.y, obj.mark); // MOVING IN ALL DIRECTIONS WHERE 0 IS UL 7 IS LU
 			if (res == true) break;
 		}
 	}
 
 	//printAll(); //UNCOMMENT FOR DEBUG
 
-	std::cout << res << std::endl;
-
 	std::ofstream ofile("OUTPUT.txt");
 
-	if (res)
+	if (res) // IF FOUNDED WAY PUTS PATH TO FILE
 	{
 		char** array{ new char* [N] };
 		for (int i = 0; i < N; i++)
@@ -332,42 +335,43 @@ int main()
 
 		auto coord = origins.find({ endPos.x, endPos.y });
 		array[endPos.y - 1][endPos.x - 1] = '@';
+		//REVERSE TRACING OF PATH
 		while (true) {
-			std::cout << coord->first[0] << ":" << coord->first[1] << std::endl;
 			Directions origin = origins[{coord->first[0], coord->first[1]}];
 			int dx = 0;
 			int dy = 0;
+			//ALL DIRECTIONS BELOW IS INVERSED
 			switch (origin)
 			{
-			case UL:
+			case UL: // UL = DR
 				dx = 1;
 				dy = 2;
 				break;
-			case UR:
+			case UR: // UR = DL
 				dx = -1;
 				dy = 2;
 				break;
-			case RU:
+			case RU: // RU = LD
 				dx = -2;
 				dy = 1;
 				break;
-			case RD:
+			case RD: // RD = LU
 				dx = -2;
 				dy = -1;
 				break;
-			case DR:
+			case DR: // DR = UL
 				dx = -1;
 				dy = -2;
 				break;
-			case DL:
+			case DL: // DL = UR
 				dx = 1;
 				dy = -2;
 				break;
-			case LD:
+			case LD: // LD = RU
 				dx = 2;
 				dy = -1;
 				break;
-			case LU:
+			case LU: // LU = RD
 				dx = 2;
 				dy = 1;
 				break;
@@ -377,7 +381,7 @@ int main()
 				break;
 			}
 
-			Pos temp = { coord->first[0] + dx, coord->first[1] + dy };
+			Pos temp = { coord->first[0] + dx, coord->first[1] + dy }; // LOOKING FOR PREVIOUS STEP
 			array[temp.y - 1][temp.x - 1] = '@';
 			//Util::print2dArray(array, N, N); //UNCOMMENT FOR DEBUG
 			if (temp.x == startPos.x && temp.y == startPos.y)
