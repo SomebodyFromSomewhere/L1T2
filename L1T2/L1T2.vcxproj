@@ -149,6 +149,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="INPUT.txt" />
+    <Text Include="OUTPUT.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="utils\Error.h" />
