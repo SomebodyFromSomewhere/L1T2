@@ -184,7 +184,7 @@ void read(std::string fileName)
 
 void addToQueue(int& u, int& v, int& mark) 
 {
-	if (endPos.x == u && endPos.y == v) // IF REACHED END RETURN
+	if (endPos.x == u && endPos.y == v) // IF REACHED END, RETURNING
 	{
 		res = true;
 		mapOfSteps[v][u] = mark;
@@ -211,7 +211,7 @@ void printAll(int delay = 0, bool clear = false) {
 	}
 }
 
-//OVERLOAD FOR HIGHLIGHTING CURREN POSITION
+//OVERLOAD FOR HIGHLIGHTING CURRENT POSITION
 void printAll(int posX, int posY, int delay = 0, bool clear = false) 
 {
 	printConditions();
